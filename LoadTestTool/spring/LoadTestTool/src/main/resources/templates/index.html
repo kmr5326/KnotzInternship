@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoadTestTool</title>
+</head>
+<body>
+<h1>Load test tool</h1>
+
+<form>
+    <label for="APIs">Choose an API:</label>
+    <select id="APIs" name="APIs" onchange="updateFields()">
+        <option value="">Select an API</option>
+        <option th:each="api : ${APIs}" th:value="${api}" th:text="${api}"></option>
+    </select>
+
+    <div id="parameters">
+        <!-- 여기에 동적으로 입력 필드가 추가됨 -->
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<input type="hidden" id="apiParameters" th:value='${apiParameters}' />
+
+<script >
+    // 페이지가 로드된 후 updateFields 함수가 실행되도록
+    document.addEventListener("DOMContentLoaded", function() {
+        // 처음에 API가 선택되지 않았으므로 빈 상태로 두고, 드롭다운 변화가 있을 때마다 updateFields()가 실행됨
+        updateFields();
+    });
+
+    // API에 따라 입력 필드를 동적으로 변경하는 함수
+    function updateFields() {
+        // 선택된 API
+        var selectedApi = document.getElementById("APIs").value;
+        // console.log("selected: "+selectedApi);
+
+        //파라미터 필드 div
+        var paramsDiv = document.getElementById("parameters");
+        paramsDiv.innerHTML = "";  // 기존 입력 필드를 지움
+
+        // 파라미터 목록을 가져옴
+        var apiParameters=JSON.parse(document.getElementById("apiParameters").value);
+        // console.log(apiParameters[selectedApi]);
+        var params = apiParameters[selectedApi];
+
+        // 각 파라미터에 대해 입력 필드 생성
+        if (params) {
+            params.forEach(function(param) {
+                var label = document.createElement("label");
+                label.setAttribute("for", param);
+                label.textContent = param.charAt(0).toUpperCase() + param.slice(1) + ":";
+
+                var input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("id", param);
+                input.setAttribute("name", param);
+                // input.setAttribute("placeholder", "Enter " + param);
+
+                paramsDiv.appendChild(label);
+                paramsDiv.appendChild(input);
+                paramsDiv.appendChild(document.createElement("br"));
+            });
+        }
+    }
+</script>
+</body>
+</html>
