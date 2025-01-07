@@ -8,7 +8,7 @@
 <body>
 <h1>Load test tool</h1>
 
-<form>
+<form action="/submit" method="POST">
     <label for="APIs">Choose an API:</label>
     <select id="APIs" name="APIs" onchange="updateFields()">
         <option value="">Select an API</option>
@@ -19,6 +19,9 @@
         <!-- 여기에 동적으로 입력 필드가 추가됨 -->
     </div>
 
+    <div id="apiList"></div>
+
+    <button type="button" onclick="addApiToList()">추가</button>
     <button type="submit">Submit</button>
 </form>
 
@@ -64,6 +67,50 @@
                 paramsDiv.appendChild(document.createElement("br"));
             });
         }
+    }
+
+    // "추가" 버튼 클릭 시 선택된 API와 입력된 파라미터를 리스트에 추가하는 함수
+    function addApiToList() {
+        var selectedApi = document.getElementById("APIs").value;
+        if (!selectedApi) return;
+
+        var paramsDiv = document.getElementById("parameters");
+        var apiListDiv = document.getElementById("apiList");
+
+        // 해당 API와 입력된 파라미터들 가져오기
+        var apiParameters = JSON.parse(document.getElementById("apiParameters").value);
+        var params = apiParameters[selectedApi];
+
+        var apiDataDiv = document.createElement("div");
+        apiDataDiv.setAttribute("class", "api-data");
+
+        var apiLabel = document.createElement("p");
+        apiLabel.textContent = "API: " + selectedApi;
+        apiDataDiv.appendChild(apiLabel);
+
+        // API와 관련된 입력 필드를 array로 만들어서 전송
+        var paramValues = {};
+        params.forEach(function(param) {
+            var paramInput = document.getElementById(param);
+            if (paramInput) {
+                var paramData = document.createElement("p");
+                paramData.textContent = param + ": " + paramInput.value;
+                apiDataDiv.appendChild(paramData);
+
+                // paramValues에 해당 파라미터 값을 담음
+                paramValues[param] = paramInput.value;
+            }
+        });
+
+        // API와 파라미터들을 리스트에 담기
+        var hiddenInput = document.createElement("input");
+        hiddenInput.setAttribute("type", "hidden");
+        hiddenInput.setAttribute("name", "apiList");  // apiList라는 이름으로 전송
+        hiddenInput.setAttribute("value", JSON.stringify({api: selectedApi, params: paramValues}));
+        apiListDiv.appendChild(hiddenInput);
+
+        // 리스트에 추가된 항목 표시
+        apiListDiv.appendChild(apiDataDiv);
     }
 </script>
 </body>
