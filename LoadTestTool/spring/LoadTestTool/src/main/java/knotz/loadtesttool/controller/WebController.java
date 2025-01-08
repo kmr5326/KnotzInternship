@@ -8,14 +8,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/")
 @Slf4j
-public class LoadTestController {
+public class WebController {
 
     @GetMapping("")
     public String index(Model model) {
