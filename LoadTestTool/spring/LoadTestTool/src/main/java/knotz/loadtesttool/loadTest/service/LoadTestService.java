@@ -1,6 +1,8 @@
 package knotz.loadtesttool.loadTest.service;
 
 import knotz.loadtesttool.loadTest.dto.*;
+import knotz.loadtesttool.loadTest.util.BuildData;
+import knotz.loadtesttool.loadTest.util.FormatData;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -10,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,21 +19,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class LoadTestService {
     private final RestTemplate restTemplate;
+    private final FormatData formatData;
+    private final BuildData buildData;
 
     public LoadTestService() {
         this.restTemplate = new RestTemplate();
+        this.formatData = new FormatData();
+        this.buildData = new BuildData(formatData);
     }
-
-
-    // 소수점 이하를 두 자리까지 반올림하는 메서드
-    private double roundDouble(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-        long factor = (long) Math.pow(10, places);
-        value = value * factor;
-        long tmp = Math.round(value);
-        return (double) tmp / factor;
-    }
-
 
     // 부하 테스트를 수행하는 메서드
     public TestStatistics performLoadTest(List<ApiRequest> apiRequests,
@@ -89,16 +83,16 @@ public class LoadTestService {
                             long requestSentTimeNano = System.nanoTime();
 
                             // 빌드 URL with Path Variables and Query Parameters
-                            URI uri = buildUri(apiRequest);
+                            URI uri = buildData.buildUri(apiRequest);
 
                             // 빌드 Headers (인증 쿠키 포함)
-                            HttpHeaders headers = buildHeaders(apiRequest, authCookie);
+                            HttpHeaders headers = buildData.buildHeaders(apiRequest, authCookie);
 
                             // 빌드 Body
-                            HttpEntity<?> entity = buildHttpEntity(apiRequest, headers);
+                            HttpEntity<?> entity = buildData.buildHttpEntity(apiRequest, headers);
 
                             // 요청 메서드 결정
-                            HttpMethod httpMethod = determineHttpMethod(apiRequest);
+                            HttpMethod httpMethod = buildData.determineHttpMethod(apiRequest);
 
                             try {
                                 // API 요청 수행 및 응답 시간 측정
@@ -158,17 +152,17 @@ public class LoadTestService {
 
         // 개별 API 결과 메트릭 계산 (나노초 단위)
         for (TestResult testResult : results) {
-            double throughput = roundDouble((double) testResult.getSuccessfulRequests().get() / (double) durationSeconds, 2);
-            double hitsPerSecond = roundDouble((double) testResult.getTotalRequests() / (double) durationSeconds, 2);
-            double errorsPerSecond = roundDouble((double) testResult.getFailedRequests().get() / (double) durationSeconds, 2);
-            double tps = roundDouble((double) testResult.getSuccessfulRequests().get() / (double) durationSeconds, 2);
+            double throughput = formatData.roundDouble((double) testResult.getSuccessfulRequests().get() / (double) durationSeconds, 2);
+            double hitsPerSecond = formatData.roundDouble((double) testResult.getTotalRequests() / (double) durationSeconds, 2);
+            double errorsPerSecond = formatData.roundDouble((double) testResult.getFailedRequests().get() / (double) durationSeconds, 2);
+            double tps = formatData.roundDouble((double) testResult.getSuccessfulRequests().get() / (double) durationSeconds, 2);
 
             // 평균 응답시간 및 지연시간 계산 (나노초 단위)
             double avgResponseTime = testResult.getSuccessfulRequests().get() > 0
-                    ? roundDouble((double) testResult.getTotalResponseTimeNano().get() / testResult.getSuccessfulRequests().get(), 2)
+                    ? formatData.roundDouble((double) testResult.getTotalResponseTimeNano().get() / testResult.getSuccessfulRequests().get(), 2)
                     : 0.0;
             double avgLatency = testResult.getSuccessfulRequests().get() > 0
-                    ? roundDouble((double) testResult.getTotalLatencyNano().get() / testResult.getSuccessfulRequests().get(), 2)
+                    ? formatData.roundDouble((double) testResult.getTotalLatencyNano().get() / testResult.getSuccessfulRequests().get(), 2)
                     : 0.0;
 
             testResult.setThroughput(throughput);
@@ -180,16 +174,16 @@ public class LoadTestService {
         }
 
         // 전체 API 집계 결과 계산 (밀리초 단위)
-        double allThroughput = roundDouble((double) allResult.getSuccessfulRequests().get() / durationSeconds, 2);
-        double allHitsPerSecond = roundDouble((double) allResult.getTotalRequests() / durationSeconds, 2);
-        double allErrorsPerSecond = roundDouble((double) allResult.getFailedRequests().get() / durationSeconds, 2);
-        double allTps = roundDouble((double) allResult.getSuccessfulRequests().get() / durationSeconds, 2);
+        double allThroughput = formatData.roundDouble((double) allResult.getSuccessfulRequests().get() / durationSeconds, 2);
+        double allHitsPerSecond = formatData.roundDouble((double) allResult.getTotalRequests() / durationSeconds, 2);
+        double allErrorsPerSecond = formatData.roundDouble((double) allResult.getFailedRequests().get() / durationSeconds, 2);
+        double allTps = formatData.roundDouble((double) allResult.getSuccessfulRequests().get() / durationSeconds, 2);
 
         double allAvgResponseTime = allResult.getSuccessfulRequests().get() > 0
-                ? roundDouble((double) allResult.getTotalResponseTimeNano().get() / allResult.getSuccessfulRequests().get() / 1_000_000.0, 2)
+                ? formatData.roundDouble((double) allResult.getTotalResponseTimeNano().get() / allResult.getSuccessfulRequests().get() / 1_000_000.0, 2)
                 : 0.0;
         double allAvgLatency = allResult.getSuccessfulRequests().get() > 0
-                ? roundDouble((double) allResult.getTotalLatencyNano().get() / allResult.getSuccessfulRequests().get() / 1_000_000.0, 2)
+                ? formatData.roundDouble((double) allResult.getTotalLatencyNano().get() / allResult.getSuccessfulRequests().get() / 1_000_000.0, 2)
                 : 0.0;
 
         allResult.setThroughput(allThroughput);
@@ -206,7 +200,7 @@ public class LoadTestService {
         TestStatistics statistics = new TestStatistics();
         statistics.setResults(results);
         statistics.setOverallResult(allResult);
-        statistics.setTotalTimeSeconds(roundDouble(allTimeSeconds, 2)); // 전체 시간 설정
+        statistics.setTotalTimeSeconds(formatData.roundDouble(allTimeSeconds, 2)); // 전체 시간 설정
         return statistics;
     }
 
@@ -250,108 +244,5 @@ public class LoadTestService {
             e.printStackTrace(); // 예외 스택 트레이스 출력
             return null;
         }
-    }
-
-
-    // API 요청의 HTTP 메서드를 결정하는 메서드
-    private HttpMethod determineHttpMethod(ApiRequest apiRequest) {
-        String methodStr = apiRequest.getMethod();
-        System.out.println("API Request method: " + methodStr); // 디버깅용 로그
-
-        // 메서드 값이 null이거나 빈 문자열인지 확인
-        if (methodStr == null || methodStr.trim().isEmpty()) {
-            throw new IllegalArgumentException("HTTP method is null or empty for API: " + apiRequest.getName());
-        }
-
-        try {
-            return HttpMethod.valueOf(methodStr.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported HTTP method: " + methodStr + " for API: " + apiRequest.getName());
-        }
-    }
-
-
-    // API 요청의 URI를 빌드하는 메서드
-    private URI buildUri(ApiRequest apiRequest) {
-        String url = apiRequest.getUrl();
-
-        // 경로 변수 처리
-        if (apiRequest.getPathVariables() != null && !apiRequest.getPathVariables().isEmpty()) {
-            for (Map.Entry<String, String> entry : apiRequest.getPathVariables().entrySet()) {
-                url = url.replace("{" + entry.getKey() + "}", entry.getValue());
-            }
-        }
-
-        // 쿼리 파라미터 처리
-        if (apiRequest.getQueryParameters() != null && !apiRequest.getQueryParameters().isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("?");
-            apiRequest.getQueryParameters().forEach((key, value) -> {
-                sb.append(key).append("=").append(value).append("&");
-            });
-            // 마지막 '&' 제거
-            sb.setLength(sb.length() - 1);
-            url += sb.toString();
-        }
-
-        return URI.create(url);
-    }
-
-
-    // API 요청의 헤더를 빌드하는 메서드, 인증 쿠키를 추가함
-    private HttpHeaders buildHeaders(ApiRequest apiRequest, String authCookie) {
-        HttpHeaders headers = new HttpHeaders();
-
-        // 사용자 정의 헤더 추가
-        if (apiRequest.getHeaders() != null && !apiRequest.getHeaders().isEmpty()) {
-            apiRequest.getHeaders().forEach(headers::add);
-        }
-
-        // Content-Type 설정
-        if (apiRequest.getContentType() != null && !apiRequest.getContentType().isEmpty()) {
-            headers.setContentType(MediaType.parseMediaType(apiRequest.getContentType()));
-        }
-
-        // 인증 쿠키 추가
-        if (authCookie != null && !authCookie.isEmpty()) {
-            headers.add("Cookie", authCookie);
-        }
-
-        return headers;
-    }
-
-
-    // API 요청의 HTTP 엔티티를 빌드하는 메서드
-    private HttpEntity<?> buildHttpEntity(ApiRequest apiRequest, HttpHeaders headers) {
-        String contentType = apiRequest.getContentType();
-
-        if ("application/json".equalsIgnoreCase(contentType)) {
-            // JSON 본문 처리
-            return new HttpEntity<>(apiRequest.getBody(), headers);
-        } else if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType)) {
-            // 폼 데이터 처리
-            MultiValueMap<String, String> formData = parseFormData(apiRequest.getBody());
-            return new HttpEntity<>(formData, headers);
-        } else {
-            // 기타 Content-Type 또는 본문 없음
-            return new HttpEntity<>(apiRequest.getBody(), headers);
-        }
-    }
-
-    // 폼 데이터 문자열을 MultiValueMap으로 변환하는 메서드
-    private MultiValueMap<String, String> parseFormData(String body) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        if (body != null && !body.isEmpty()) {
-            String[] pairs = body.split("&");
-            for (String pair : pairs) {
-                String[] keyValue = pair.split("=", 2);
-                if (keyValue.length == 2) {
-                    formData.add(keyValue[0], keyValue[1]);
-                } else if (keyValue.length == 1) {
-                    formData.add(keyValue[0], "");
-                }
-            }
-        }
-        return formData;
     }
 }
