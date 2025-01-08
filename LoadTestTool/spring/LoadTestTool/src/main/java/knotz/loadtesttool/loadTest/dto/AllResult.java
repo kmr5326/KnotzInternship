@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Data
 public class AllResult {
     @JsonProperty("총 요청 수")
-    private int totalRequests;
+    private AtomicInteger totalRequests = new AtomicInteger(0);
 
     @JsonProperty("성공 요청 수")
     private AtomicInteger successfulRequests = new AtomicInteger(0);
