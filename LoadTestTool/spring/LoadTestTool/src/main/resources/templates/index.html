@@ -8,8 +8,17 @@
 <body>
 <h1>Load test tool</h1>
 
-<form action="/submit" method="POST">
-    <label for="APIs">Choose an API:</label>
+<form id="loadTestForm" action="/submit" method="POST">
+    <div>
+        <label for="userCount">사용자 수:</label>
+        <input type="number" id="userCount" name="userCount" min="1" >
+    </div>
+    <div>
+        <label for="requestCount">사용자가 보낼 요청 횟수:</label>
+        <input type="number" id="requestCount" name="requestCount" min="1" >
+    </div>
+
+    <label for="APIs">Select an API:</label>
     <select id="APIs" name="APIs" onchange="updateFields()">
         <option value="">Select an API</option>
         <option th:each="api : ${APIs}" th:value="${api}" th:text="${api}"></option>
@@ -22,7 +31,7 @@
     <div id="apiList"></div>
 
     <button type="button" onclick="addApiToList()">추가</button>
-    <button type="submit">Submit</button>
+    <button type="submit" onclick="submitForm()">Submit</button>
 </form>
 
 <input type="hidden" id="apiParameters" th:value='${apiParameters}' />
@@ -107,11 +116,38 @@
         hiddenInput.setAttribute("type", "hidden");
         hiddenInput.setAttribute("name", "apiList");  // apiList라는 이름으로 전송
         hiddenInput.setAttribute("value", JSON.stringify({api: selectedApi, params: paramValues}));
+
         apiListDiv.appendChild(hiddenInput);
 
         // 리스트에 추가된 항목 표시
         apiListDiv.appendChild(apiDataDiv);
     }
+
+    function submitForm() {
+        var form = document.getElementById("loadTestForm");
+
+        var apiListInputs = document.getElementsByName("apiList");
+
+        if (apiListInputs.length === 1) {
+            var apiListDiv = document.getElementById("apiList");
+            var hiddenInput = document.createElement("input");
+            hiddenInput.setAttribute("type", "hidden");
+            hiddenInput.setAttribute("name", "apiList");
+            hiddenInput.setAttribute("value", JSON.stringify({api: "null"}));
+
+            apiListDiv.appendChild(hiddenInput);
+        }
+
+        form.submit();  // 폼을 실제로 제출
+    }
 </script>
 </body>
+<style>
+    /* userCount와 requestCount 필드 크기 줄이기 */
+    #userCount, #requestCount {
+        width: 50px;  /* 가로 크기 */
+        padding: 5px;  /* 안쪽 여백 */
+        font-size: 14px; /* 글씨 크기 */
+    }
+</style>
 </html>

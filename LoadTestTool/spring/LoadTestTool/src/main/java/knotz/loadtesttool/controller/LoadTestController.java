@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -54,17 +51,38 @@ public class LoadTestController {
 //        return "redirect:/";
 //    }
     @PostMapping("/submit")
-    public String submit(@RequestParam("apiList") List<String> apiListJson) throws JsonProcessingException {
+    public String submit(@RequestParam("apiList") List<String> apiListJson,
+                         @RequestParam("userCount") Integer userCount,
+                         @RequestParam("requestCount") Integer requestCount) throws JsonProcessingException {
 
-        // 각 API와 파라미터 목록을 처리
-        List<Map<String, Object>> apiList = new ArrayList<>();
+//        log.info("userCount: {}, requestCount: {}",userCount,requestCount);
+
+        List<Map<String, String>> apiList = new ArrayList<>();
         for (String apiJson : apiListJson) {
+            log.info("apiData: {}",apiJson);
             // API 정보와 파라미터를 JSON 파싱해서 처리
             Map<String, Object> apiData = new ObjectMapper().readValue(apiJson, Map.class);
-            apiList.add(apiData);
-            log.info("apiData: {}",apiJson);
+            String apiName=apiData.get("api").toString();
+            if(apiName.equals("null"))continue;
+            Map<String,String> dataMap= new HashMap<>();
+            dataMap.put("api",apiName);
+
+            Map<String, Object> params = (Map<String, Object>) apiData.get("params");
+            if (params != null) {
+                for (Map.Entry<String, Object> entry : params.entrySet()) {
+                    dataMap.put(entry.getKey(), entry.getValue().toString());
+                }
+            }
+
+            apiList.add(dataMap);
+
         }
 
+//        for(Map<String,String> e:apiList){
+//            e.forEach((key,value)->{
+//                log.info("key: {} , value {}",key,value);
+//            });
+//        }
 
         return "redirect:/";
     }
