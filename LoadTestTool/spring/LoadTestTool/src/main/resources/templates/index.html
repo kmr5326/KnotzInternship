@@ -10,12 +10,23 @@
 
 <form id="loadTestForm" action="/submit" method="POST">
     <div>
-        <label for="userCount">사용자 수:</label>
-        <input type="number" id="userCount" name="userCount" min="1" >
+        <label for="threads">Number of Threads:</label>
+        <input type="number" id="threads" name="threads" min="1" required>
     </div>
+
     <div>
-        <label for="requestCount">사용자가 보낼 요청 횟수:</label>
-        <input type="number" id="requestCount" name="requestCount" min="1" >
+        <label for="rampUp">Ramp-up period (seconds):</label>
+        <input type="number" id="rampUp" name="rampUp" min="1" required>
+    </div>
+
+    <div>
+        <label for="loopCount">Loop Count:</label>
+        <input type="number" id="loopCount" name="loopCount" min="1" required>
+    </div>
+
+    <div>
+        <label for="duration">Duration (seconds):</label>
+        <input type="number" id="duration" name="duration" min="1" required>
     </div>
 
     <label for="APIs">Select an API:</label>

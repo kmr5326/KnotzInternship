@@ -52,14 +52,16 @@ public class LoadTestController {
 //    }
     @PostMapping("/submit")
     public String submit(@RequestParam("apiList") List<String> apiListJson,
-                         @RequestParam("userCount") Integer userCount,
-                         @RequestParam("requestCount") Integer requestCount) throws JsonProcessingException {
+                         @RequestParam("threads") Integer threads,
+                         @RequestParam("rampUp") Integer rampUp,
+                         @RequestParam("loopCount") Integer loopCount,
+                         @RequestParam("duration") Integer duration) throws JsonProcessingException {
 
-//        log.info("userCount: {}, requestCount: {}",userCount,requestCount);
+        log.info("threads: {}, rampUp: {}, loopCount: {}, duration: {}",threads,rampUp,loopCount,duration);
 
         List<Map<String, String>> apiList = new ArrayList<>();
         for (String apiJson : apiListJson) {
-            log.info("apiData: {}",apiJson);
+//            log.info("apiData: {}",apiJson);
             // API 정보와 파라미터를 JSON 파싱해서 처리
             Map<String, Object> apiData = new ObjectMapper().readValue(apiJson, Map.class);
             String apiName=apiData.get("api").toString();
