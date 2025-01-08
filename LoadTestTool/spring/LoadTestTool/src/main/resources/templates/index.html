@@ -45,6 +45,11 @@
     <button type="submit" onclick="submitForm()">Submit</button>
 </form>
 
+<h1>InfluxDB Data Write Test</h1>
+<form action="/influxDB/write-to-influxdb" method="get">
+    <button type="submit">Write to InfluxDB</button>
+</form>
+
 <input type="hidden" id="apiParameters" th:value='${apiParameters}' />
 
 <script >

@@ -2,8 +2,10 @@ package knotz.loadtesttool.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import knotz.loadtesttool.influxDB.service.InfluxDBService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ import java.util.*;
 @RequestMapping("/")
 @Slf4j
 public class WebController {
+
+
+    private final InfluxDBService influxDBService;
 
     @GetMapping("")
     public String index(Model model) {
@@ -30,7 +35,7 @@ public class WebController {
             String apiParametersJson = objectMapper.writeValueAsString(apiParameters);
             model.addAttribute("apiParameters", apiParametersJson);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("apiParameters Json parsing Error: {}",e.getMessage());
         }
 
         model.addAttribute("APIs", apis);
