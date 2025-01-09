@@ -25,10 +25,10 @@ public class TestResult {
     @JsonProperty("처리량")
     private double throughput;
 
-    @JsonProperty("평균 응답시간(ns)")
+    @JsonProperty("평균 응답시간(ms)")
     private double averageResponseTime;
 
-    @JsonProperty("평균 지연시간(ns)")
+    @JsonProperty("평균 지연시간(ms)")
     private double averageLatency;
 
     @JsonProperty("초당 히트 수")
