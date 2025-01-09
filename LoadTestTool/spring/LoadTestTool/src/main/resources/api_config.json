@@ -1,0 +1,5 @@
+{
+  "AuthCookieAPI": ["username","password"],
+  "UserGetAllAPI": ["name","pagesize","page"],
+  "AuthLogoutAPI": ["username"]
+}

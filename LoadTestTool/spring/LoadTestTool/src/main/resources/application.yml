@@ -2,4 +2,13 @@ spring:
   application:
     name: LoadTestTool
 
+  influx:
+    url: http://localhost:8086
+    user: intern
+    password: 53265326
+    token: qqPRLVvn1dhj0lISV6ZJNlUoScId4N038RE4OmJ7tTJ7V62PSE71D_7iwG13xogWNkpsaQccrq5KMfd0m8jZ3w==
+    bucket: bucket1
+    org: knotz
+#    database: bucket1
+#    retention-policy: autogen
 
