@@ -54,10 +54,10 @@ public class CalculateResult {
 
             // 평균 응답시간 및 지연시간 계산 (나노초 단위)
             double avgResponseTime = testResult.getSuccessfulRequests().get() > 0
-                    ? formatData.roundDouble((double) testResult.getTotalResponseTimeNano().get() / testResult.getSuccessfulRequests().get(), 2)
+                    ? formatData.roundDouble((double) testResult.getTotalResponseTimeNano().get() / testResult.getSuccessfulRequests().get() / 1_000_000.0, 2)
                     : 0.0;
             double avgLatency = testResult.getSuccessfulRequests().get() > 0
-                    ? formatData.roundDouble((double) testResult.getTotalLatencyNano().get() / testResult.getSuccessfulRequests().get(), 2)
+                    ? formatData.roundDouble((double) testResult.getTotalLatencyNano().get() / testResult.getSuccessfulRequests().get() / 1_000_000.0, 2)
                     : 0.0;
 
             testResult.setThroughput(throughput);
