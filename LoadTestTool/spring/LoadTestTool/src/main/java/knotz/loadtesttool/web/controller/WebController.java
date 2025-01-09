@@ -1,13 +1,18 @@
-package knotz.loadtesttool.controller;
+package knotz.loadtesttool.web.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import knotz.loadtesttool.influxDB.service.InfluxDBService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -16,21 +21,36 @@ import java.util.*;
 @Slf4j
 public class WebController {
 
+    private final InfluxDBService influxDBService;
+    private final ResourceLoader resourceLoader;
+
     @GetMapping("")
     public String index(Model model) {
-        List<String> apis = Arrays.asList("AuthCookieAPI", "AuthLogoutAPI", "UserGetAllAPI");
-
-        Map<String, List<String>> apiParameters = new HashMap<>();
-        apiParameters.put("AuthCookieAPI", Arrays.asList("username", "password"));
-        apiParameters.put("UserGetAllAPI", Arrays.asList("name", "pagesize", "page"));
-        apiParameters.put("AuthLogoutAPI", Arrays.asList("username"));
+//        List<String> apis = Arrays.asList("AuthCookieAPI", "AuthLogoutAPI", "UserGetAllAPI");
 
         ObjectMapper objectMapper = new ObjectMapper();
+
+//        Map<String, List<String>> apiParameters = new HashMap<>();
+//        apiParameters.put("AuthCookieAPI", Arrays.asList("username", "password"));
+//        apiParameters.put("UserGetAllAPI", Arrays.asList("name", "pagesize", "page"));
+//        apiParameters.put("AuthLogoutAPI", Arrays.asList("username"));
+        List<String> apis=new ArrayList<>();
+        Map<String, List<String>> apiParameters = null;
+
+        try {
+            Resource resource = resourceLoader.getResource("classpath:api_config.json");
+            apiParameters = objectMapper.readValue(resource.getInputStream(), Map.class);
+            apis=List.copyOf(apiParameters.keySet());
+        } catch (IOException e) {
+            log.error("api-config.json File read Error : {}",e.getMessage());
+            // 파일 읽기 오류 처리
+        }
+
         try {
             String apiParametersJson = objectMapper.writeValueAsString(apiParameters);
             model.addAttribute("apiParameters", apiParametersJson);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("apiParameters Json parsing Error: {}",e.getMessage());
         }
 
         model.addAttribute("APIs", apis);
