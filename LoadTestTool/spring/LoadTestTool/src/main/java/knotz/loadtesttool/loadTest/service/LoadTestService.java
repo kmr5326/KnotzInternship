@@ -1,9 +1,13 @@
 package knotz.loadtesttool.loadTest.service;
 
+import knotz.loadtesttool.influxDB.dto.ApiLoadTestResult;
+import knotz.loadtesttool.influxDB.service.InfluxDBService;
 import knotz.loadtesttool.loadTest.dto.*;
 import knotz.loadtesttool.loadTest.util.BuildData;
 import knotz.loadtesttool.loadTest.util.CalculateResult;
 import knotz.loadtesttool.loadTest.util.FormatData;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,12 +27,15 @@ public class LoadTestService {
     private final FormatData formatData;
     private final BuildData buildData;
     private final CalculateResult calculateResult;
+    private final InfluxDBService influxDBService;
 
-    public LoadTestService() {
+    @Autowired
+    public LoadTestService(InfluxDBService influxDBService) {
         this.restTemplate = new RestTemplate();
         this.formatData = new FormatData();
         this.buildData = new BuildData(formatData);
         this.calculateResult = new CalculateResult(formatData);
+        this.influxDBService= influxDBService;
     }
 
     // 부하 테스트를 수행하는 메서드
@@ -38,6 +45,7 @@ public class LoadTestService {
                                           int loopCount,
                                           int durationSeconds,
                                           LoginRequest loginRequest) throws InterruptedException {
+
         List<TestResult> results = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 
@@ -110,6 +118,8 @@ public class LoadTestService {
                                 // 누적 (AtomicLong 사용으로 스레드 안전성 보장)
                                 testResult.getTotalLatencyNano().addAndGet(latencyNano);
                                 testResult.getTotalResponseTimeNano().addAndGet(responseTimeNano);
+
+                                influxDBService.saveLoadTestResult(apiRequest.getName(), latencyNano,responseTimeNano,response.getStatusCode().is2xxSuccessful());
 
                                 allResult.getTotalLatencyNano().addAndGet(latencyNano);
                                 allResult.getTotalResponseTimeNano().addAndGet(responseTimeNano);
@@ -200,4 +210,6 @@ public class LoadTestService {
             return null;
         }
     }
+
+
 }

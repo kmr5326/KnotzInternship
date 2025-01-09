@@ -1,12 +1,18 @@
 package knotz.loadtesttool.influxDB.service;
 
 import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import knotz.loadtesttool.influxDB.dto.ApiLoadTestResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class InfluxDBService {
 
     @Autowired
@@ -31,5 +37,19 @@ public class InfluxDBService {
             // InfluxDB에 데이터 기록
             influxDBClient.getWriteApiBlocking().writePoint(row);
         }
+    }
+
+    public void saveLoadTestResult(String apiName, long latencyNano, long responseTimeNano, boolean isSuccess) {
+        Point point = Point.measurement("load_test_results")
+                .addTag("api", apiName)
+                .addField("latency_nano", latencyNano)
+                .addField("response_time_nano", responseTimeNano)
+                .addField("is_success", isSuccess ? 1 : 0) // 성공/실패를 1/0으로 저장
+                .time(Instant.now(), WritePrecision.NS);
+
+//        log.info("latency: {}, responseTime: {} ,time: {}, success: {}",latencyNano,responseTimeNano,Instant.now(),isSuccess ? 1 : 0);
+        influxDBClient.getWriteApiBlocking().writePoint(point);
+
+
     }
 }
