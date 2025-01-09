@@ -26,14 +26,9 @@ public class WebController {
 
     @GetMapping("")
     public String index(Model model) {
-//        List<String> apis = Arrays.asList("AuthCookieAPI", "AuthLogoutAPI", "UserGetAllAPI");
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-//        Map<String, List<String>> apiParameters = new HashMap<>();
-//        apiParameters.put("AuthCookieAPI", Arrays.asList("username", "password"));
-//        apiParameters.put("UserGetAllAPI", Arrays.asList("name", "pagesize", "page"));
-//        apiParameters.put("AuthLogoutAPI", Arrays.asList("username"));
         List<String> apis=new ArrayList<>();
         Map<String, List<String>> apiParameters = null;
 
@@ -54,21 +49,10 @@ public class WebController {
         }
 
         model.addAttribute("APIs", apis);
-//        model.addAttribute("apiParameters", apiParameters);
         return "index";
     }
 
-//    @PostMapping("submit")
-//    public String submit(@RequestParam Map<String, String> params){
 
-    /// /        String selectedApi = params.get("APIs");
-    /// /        log.info(selectedApi);
-//
-//        params.forEach((key, value) -> {
-//            log.info("Parameter Name: {}, Value: {}", key, value);
-//        });
-//        return "redirect:/";
-//    }
     @PostMapping("/submit")
     public String submit(@RequestParam("apiList") List<String> apiListJson,
                          @RequestParam("threads") Integer threads,
