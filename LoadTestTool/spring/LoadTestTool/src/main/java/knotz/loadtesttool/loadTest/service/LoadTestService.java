@@ -1,9 +1,11 @@
 package knotz.loadtesttool.loadTest.service;
 
+import knotz.loadtesttool.influxDB.service.InfluxDBService;
 import knotz.loadtesttool.loadTest.dto.*;
 import knotz.loadtesttool.loadTest.util.BuildData;
 import knotz.loadtesttool.loadTest.util.CalculateResult;
 import knotz.loadtesttool.loadTest.util.FormatData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,13 +27,16 @@ public class LoadTestService {
     private final FormatData formatData;
     private final BuildData buildData;
     private final CalculateResult calculateResult;
+    private final InfluxDBService influxDBService;
     private final LoginService loginService;
 
-    public LoadTestService() {
+    @Autowired
+    public LoadTestService(InfluxDBService influxDBService) {
         this.restTemplate = new RestTemplate();
         this.formatData = new FormatData();
         this.buildData = new BuildData(formatData);
         this.calculateResult = new CalculateResult(formatData);
+        this.influxDBService= influxDBService;
         this.loginService = new LoginService();
     }
 
@@ -154,6 +159,8 @@ public class LoadTestService {
 
                 allResult.getTotalLatencyNano().addAndGet(latencyNano);
                 allResult.getTotalResponseTimeNano().addAndGet(responseTimeNano);
+
+                influxDBService.saveLoadTestResult(apiRequest.getName(), latencyNano,responseTimeNano,response.getStatusCode().is2xxSuccessful());
 
                 // 요청 수 업데이트 (AtomicInteger 사용)
                 allResult.getTotalRequests().incrementAndGet();
