@@ -36,7 +36,7 @@ public class LoadTestService {
         this.formatData = new FormatData();
         this.buildData = new BuildData(formatData);
         this.calculateResult = new CalculateResult(formatData);
-        this.influxDBService= influxDBService;
+        this.influxDBService = influxDBService;
         this.loginService = new LoginService();
     }
 
@@ -143,15 +143,16 @@ public class LoadTestService {
             // 요청 메서드 결정
             HttpMethod httpMethod = buildData.determineHttpMethod(apiRequest);
 
-            try {
-                // API 요청 수행 및 응답 시간 측정
-                long responseStartTimeNano = System.nanoTime();
-                ResponseEntity<String> response = restTemplate.exchange(uri, httpMethod, entity, String.class);
-                long responseEndTimeNano = System.nanoTime();
+            // API 요청 수행 및 응답 시간 측정
+            long responseStartTimeNano = System.nanoTime();
+            long responseEndTimeNano = System.nanoTime();
 
-                // 지연 시간 및 응답 시간 계산
-                long latencyNano = responseStartTimeNano - requestSentTimeNano;
-                long responseTimeNano = responseEndTimeNano - requestSentTimeNano;
+            // 지연 시간 및 응답 시간 계산
+            long latencyNano = responseStartTimeNano - requestSentTimeNano;
+            long responseTimeNano = responseEndTimeNano - requestSentTimeNano;
+
+            try {
+                ResponseEntity<String> response = restTemplate.exchange(uri, httpMethod, entity, String.class);
 
                 // 누적 (AtomicLong 사용으로 스레드 안전성 보장)
                 testResult.getTotalLatencyNano().addAndGet(latencyNano);
@@ -160,7 +161,7 @@ public class LoadTestService {
                 allResult.getTotalLatencyNano().addAndGet(latencyNano);
                 allResult.getTotalResponseTimeNano().addAndGet(responseTimeNano);
 
-                influxDBService.saveLoadTestResult(apiRequest.getName(), latencyNano,responseTimeNano,response.getStatusCode().is2xxSuccessful());
+                influxDBService.saveLoadTestResult(apiRequest.getName(), latencyNano, responseTimeNano, response.getStatusCode().is2xxSuccessful());
 
                 // 요청 수 업데이트 (AtomicInteger 사용)
                 allResult.getTotalRequests().incrementAndGet();
@@ -176,6 +177,7 @@ public class LoadTestService {
             } catch (Exception e) {
                 testResult.getFailedRequests().incrementAndGet();
                 allResult.getFailedRequests().incrementAndGet();
+                influxDBService.saveLoadTestResult(apiRequest.getName(), latencyNano, responseTimeNano, false);
                 // 예외 로그 추가 (선택 사항)
                 System.err.println("API 요청 중 예외 발생: " + e.getMessage());
             }
