@@ -4,23 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ed9497f0-021d-4623-97fd-16de8e85934c" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/fastAPI.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routes/data_routes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routes/image_routes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/graph_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/image_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/influxdb_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    <list default="true" id="ed9497f0-021d-4623-97fd-16de8e85934c" name="변경" comment="fastAPI add">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/influxdb_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/influxdb_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +27,18 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "one-gidung"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/kmr5326/KnotzInternship.git",
+    "accountId": "0dc64965-0655-40a4-a9ad-5bb6469b0791"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -108,8 +107,17 @@
       <updated>1736482198341</updated>
       <workItem from="1736482199494" duration="6552000" />
       <workItem from="1736488801418" duration="603000" />
-      <workItem from="1736489520717" duration="1655000" />
+      <workItem from="1736489520717" duration="5705000" />
     </task>
+    <task id="LOCAL-00001" summary="fastAPI add">
+      <option name="closed" value="true" />
+      <created>1736493144661</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1736493144661</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -137,6 +145,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fastAPI add" />
+    <option name="LAST_COMMIT_MESSAGE" value="fastAPI add" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/fastAPI$fastAPI.coverage" NAME="fastAPI 커버리지 결과" MODIFIED="1736482590687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
