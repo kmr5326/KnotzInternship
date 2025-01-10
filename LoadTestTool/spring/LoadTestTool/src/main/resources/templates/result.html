@@ -3,37 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <title>Load Test Result</title>
+    <style>
+        /* 기본 폰트와 여백 설정 */
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        /* 큰 제목 (페이지 제목) */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* 섹션(전체 결과 / 개별 결과) 구분 박스 스타일 */
+        .section {
+            background-color: #fff;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        /* 섹션 내 소제목 */
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* 전체 결과나 개별 API 결과에서 숫자/수치들이 잘 보이도록 p 태그 스타일 */
+        p {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        /* 개별 API 결과를 감싸는 박스 */
+        .api-result {
+            background-color: #fafafa;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        /* 개별 API 이름 (h3) */
+        .api-result h3 {
+            margin-top: 0;
+            color: #444;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* 돌아가기 버튼 */
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 30px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007BFF;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 반응형을 고려해 최대 너비를 제한하고 가운데 정렬 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-<h1>부하 테스트 결과</h1>
 
-<h2>전체 API 결과</h2>
-<p>총 요청 수: <span th:text="${statistics.overallResult.totalRequests}"></span></p>
-<p>성공 요청 수: <span th:text="${statistics.overallResult.successfulRequests}"></span></p>
-<p>실패 요청 수: <span th:text="${statistics.overallResult.failedRequests}"></span></p>
-<p>처리량: <span th:text="${statistics.overallResult.throughput}"></span> TPS</p>
-<p>평균 응답시간(ms): <span th:text="${statistics.overallResult.averageResponseTime}"></span></p>
-<p>평균 지연시간(ms): <span th:text="${statistics.overallResult.averageLatency}"></span></p>
-<p>초당 히트 수: <span th:text="${statistics.overallResult.hitsPerSecond}"></span></p>
-<p>초당 트랜잭션 수: <span th:text="${statistics.overallResult.tps}"></span></p>
-<p>초당 오류 수: <span th:text="${statistics.overallResult.errorsPerSecond}"></span></p>
-<p>총 시간(초): <span th:text="${statistics.totalTimeSeconds}"></span></p>
+<div class="container">
+    <h1>부하 테스트 결과</h1>
 
-<h2>개별 API 결과</h2>
-<div th:each="apiResult : ${statistics.results}">
-    <h3 th:text="${apiResult.apiName}"></h3>
-    <p>총 요청 수: <span th:text="${apiResult.totalRequests}"></span></p>
-    <p>성공 요청 수: <span th:text="${apiResult.successfulRequests}"></span></p>
-    <p>실패 요청 수: <span th:text="${apiResult.failedRequests}"></span></p>
-    <p>처리량: <span th:text="${apiResult.throughput}"></span> TPS</p>
-    <p>평균 응답시간(ms): <span th:text="${apiResult.averageResponseTime}"></span></p>
-    <p>평균 지연시간(ms): <span th:text="${apiResult.averageLatency}"></span></p>
-    <p>초당 히트 수: <span th:text="${apiResult.hitsPerSecond}"></span></p>
-    <p>초당 트랜잭션 수: <span th:text="${apiResult.tps}"></span></p>
-    <p>초당 오류 수: <span th:text="${apiResult.errorsPerSecond}"></span></p>
-    <hr>
+    <!-- 전체 API 결과 -->
+    <div class="section">
+        <h2>전체 API 결과</h2>
+        <p>총 요청 수: <span th:text="${statistics.overallResult.totalRequests}"></span></p>
+        <p>성공 요청 수: <span th:text="${statistics.overallResult.successfulRequests}"></span></p>
+        <p>실패 요청 수: <span th:text="${statistics.overallResult.failedRequests}"></span></p>
+        <p>처리량(TPS): <span th:text="${statistics.overallResult.throughput}"></span></p>
+        <p>평균 응답시간(ms): <span th:text="${statistics.overallResult.averageResponseTime}"></span></p>
+        <p>평균 지연시간(ms): <span th:text="${statistics.overallResult.averageLatency}"></span></p>
+        <p>초당 히트 수: <span th:text="${statistics.overallResult.hitsPerSecond}"></span></p>
+        <p>초당 트랜잭션 수: <span th:text="${statistics.overallResult.tps}"></span></p>
+        <p>초당 오류 수: <span th:text="${statistics.overallResult.errorsPerSecond}"></span></p>
+        <p>총 시간(초): <span th:text="${statistics.totalTimeSeconds}"></span></p>
+    </div>
+
+    <!-- 개별 API 결과 -->
+    <div class="section">
+        <h2>개별 API 결과</h2>
+        <div class="api-result" th:each="apiResult : ${statistics.results}">
+            <h3 th:text="${apiResult.apiName}"></h3>
+            <p>총 요청 수: <span th:text="${apiResult.totalRequests}"></span></p>
+            <p>성공 요청 수: <span th:text="${apiResult.successfulRequests}"></span></p>
+            <p>실패 요청 수: <span th:text="${apiResult.failedRequests}"></span></p>
+            <p>처리량(TPS): <span th:text="${apiResult.throughput}"></span></p>
+            <p>평균 응답시간(ms): <span th:text="${apiResult.averageResponseTime}"></span></p>
+            <p>평균 지연시간(ms): <span th:text="${apiResult.averageLatency}"></span></p>
+            <p>초당 히트 수: <span th:text="${apiResult.hitsPerSecond}"></span></p>
+            <p>초당 트랜잭션 수: <span th:text="${apiResult.tps}"></span></p>
+            <p>초당 오류 수: <span th:text="${apiResult.errorsPerSecond}"></span></p>
+        </div>
+    </div>
+
+    <!-- 돌아가기 버튼 -->
+    <div style="text-align: center;">
+        <a class="back-button" href="/">돌아가기</a>
+    </div>
 </div>
 
-<a href="/">돌아가기</a>
 </body>
 </html>
