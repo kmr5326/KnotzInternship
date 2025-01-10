@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load Test Result</title>
+</head>
+<body>
+<h1>부하 테스트 결과</h1>
+
+<h2>전체 API 결과</h2>
+<p>총 요청 수: <span th:text="${statistics.overallResult.totalRequests}"></span></p>
+<p>성공 요청 수: <span th:text="${statistics.overallResult.successfulRequests}"></span></p>
+<p>실패 요청 수: <span th:text="${statistics.overallResult.failedRequests}"></span></p>
+<p>처리량: <span th:text="${statistics.overallResult.throughput}"></span> TPS</p>
+<p>평균 응답시간(ms): <span th:text="${statistics.overallResult.averageResponseTime}"></span></p>
+<p>평균 지연시간(ms): <span th:text="${statistics.overallResult.averageLatency}"></span></p>
+<p>초당 히트 수: <span th:text="${statistics.overallResult.hitsPerSecond}"></span></p>
+<p>초당 트랜잭션 수: <span th:text="${statistics.overallResult.tps}"></span></p>
+<p>초당 오류 수: <span th:text="${statistics.overallResult.errorsPerSecond}"></span></p>
+<p>총 시간(초): <span th:text="${statistics.totalTimeSeconds}"></span></p>
+
+<h2>개별 API 결과</h2>
+<div th:each="apiResult : ${statistics.results}">
+    <h3 th:text="${apiResult.apiName}"></h3>
+    <p>총 요청 수: <span th:text="${apiResult.totalRequests}"></span></p>
+    <p>성공 요청 수: <span th:text="${apiResult.successfulRequests}"></span></p>
+    <p>실패 요청 수: <span th:text="${apiResult.failedRequests}"></span></p>
+    <p>처리량: <span th:text="${apiResult.throughput}"></span> TPS</p>
+    <p>평균 응답시간(ms): <span th:text="${apiResult.averageResponseTime}"></span></p>
+    <p>평균 지연시간(ms): <span th:text="${apiResult.averageLatency}"></span></p>
+    <p>초당 히트 수: <span th:text="${apiResult.hitsPerSecond}"></span></p>
+    <p>초당 트랜잭션 수: <span th:text="${apiResult.tps}"></span></p>
+    <p>초당 오류 수: <span th:text="${apiResult.errorsPerSecond}"></span></p>
+    <hr>
+</div>
+
+<a href="/">돌아가기</a>
+</body>
+</html>

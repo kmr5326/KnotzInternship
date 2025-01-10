@@ -4,166 +4,238 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoadTestTool</title>
+    <style>
+        .api-request {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .remove-api {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
 </head>
 <body>
-<h1>Load test tool</h1>
+<h1>Load Test Tool</h1>
 
 <form id="loadTestForm" action="/submit" method="POST">
-    <div>
-        <label for="threads">Number of Threads:</label>
-        <input type="number" id="threads" name="threads" min="1" required>
-    </div>
+    <!-- 로그인 요청 섹션 -->
+    <fieldset>
+        <legend>로그인 요청</legend>
+        <div>
+            <label for="loginUsername">Username:</label>
+            <input type="text" id="loginUsername" name="loginRequest.username" required>
+        </div>
+        <div>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" name="loginRequest.password" required>
+        </div>
+    </fieldset>
 
-    <div>
-        <label for="rampUp">Ramp-up period (seconds):</label>
-        <input type="number" id="rampUp" name="rampUp" min="1" required>
-    </div>
+    <hr>
 
-    <div>
-        <label for="loopCount">Loop Count:</label>
-        <input type="number" id="loopCount" name="loopCount" min="1" required>
-    </div>
+    <!-- API 요청 리스트 섹션 -->
+    <fieldset>
+        <legend>API 요청 리스트</legend>
+        <div id="apiRequestsContainer">
+            <!-- 동적으로 API 요청이 추가됨 -->
+        </div>
+        <button type="button" onclick="addApiRequest()">API 요청 추가</button>
+    </fieldset>
 
-    <div>
-        <label for="duration">Duration (seconds):</label>
-        <input type="number" id="duration" name="duration" min="1" required>
-    </div>
+    <hr>
 
-    <label for="APIs">Select an API:</label>
-    <select id="APIs" name="APIs" onchange="updateFields()">
-        <option value="">Select an API</option>
-        <option th:each="api : ${APIs}" th:value="${api}" th:text="${api}"></option>
-    </select>
+    <!-- 부하 테스트 설정 섹션 -->
+    <fieldset>
+        <legend>부하 테스트 설정</legend>
+        <div>
+            <label for="threads">스레드 수:</label>
+            <input type="number" id="threads" name="numberOfThreads" min="1" required>
+        </div>
+        <div>
+            <label for="rampUp">램프업 기간 (초):</label>
+            <input type="number" id="rampUp" name="rampUpPeriodSeconds" min="0" required>
+        </div>
+        <div>
+            <label for="loopCount">반복 횟수:</label>
+            <input type="number" id="loopCount" name="loopCount" min="1" required>
+        </div>
+        <div>
+            <label for="duration">테스트 지속 시간 (초):</label>
+            <input type="number" id="duration" name="durationSeconds" min="1" required>
+        </div>
+    </fieldset>
 
-    <div id="parameters">
-        <!-- 여기에 동적으로 입력 필드가 추가됨 -->
-    </div>
+    <hr>
 
-    <div id="apiList"></div>
-
-    <button type="button" onclick="addApiToList()">추가</button>
-    <button type="submit" onclick="submitForm()">Submit</button>
+    <button type="submit">Submit</button>
 </form>
-
-<!--<h1>InfluxDB Data Write Test</h1>-->
-<!--<form action="/influxDB/write-to-influxdb" method="get">-->
-<!--    <button type="submit">Write to InfluxDB</button>-->
-<!--</form>-->
 
 <input type="hidden" id="apiParameters" th:value='${apiParameters}' />
 
-<script >
-    // 페이지가 로드된 후 updateFields 함수가 실행되도록
-    document.addEventListener("DOMContentLoaded", function() {
-        // 처음에 API가 선택되지 않았으므로 빈 상태로 두고, 드롭다운 변화가 있을 때마다 updateFields()가 실행됨
-        updateFields();
-    });
+<script>
+    // 초기 API 요청 카운트 변수 제거
 
-    // API에 따라 입력 필드를 동적으로 변경하는 함수
-    function updateFields() {
-        // 선택된 API
-        var selectedApi = document.getElementById("APIs").value;
-        // console.log("selected: "+selectedApi);
+    // API 요청 추가 함수
+    function addApiRequest() {
+        const container = document.getElementById('apiRequestsContainer');
+        const currentCount = container.querySelectorAll('.api-request').length; // 현재 API 요청 수를 기준으로 인덱스 설정
+        const apiDiv = document.createElement('div');
+        apiDiv.className = 'api-request';
+        apiDiv.id = `apiRequest-${currentCount}`;
 
-        //파라미터 필드 div
-        var paramsDiv = document.getElementById("parameters");
-        paramsDiv.innerHTML = "";  // 기존 입력 필드를 지움
+        apiDiv.innerHTML = `
+            <button type="button" class="remove-api" onclick="removeApiRequest(${currentCount})">삭제</button>
+            <h3>API 요청 ${currentCount + 1}</h3>
+            <div>
+                <label for="apiRequests[${currentCount}].name">API 이름:</label>
+                <input type="text" id="apiRequests[${currentCount}].name" name="apiRequests[${currentCount}].name" required>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].url">API URL:</label>
+                <input type="url" id="apiRequests[${currentCount}].url" name="apiRequests[${currentCount}].url" required>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].method">HTTP Method:</label>
+                <select id="apiRequests[${currentCount}].method" name="apiRequests[${currentCount}].method" required>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].pathVariables">Path Variables (JSON 형식):</label>
+                <textarea id="apiRequests[${currentCount}].pathVariables" name="apiRequests[${currentCount}].pathVariables" placeholder='e.g., {"id": "123"}'></textarea>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].queryParameters">Query Parameters (JSON 형식):</label>
+                <textarea id="apiRequests[${currentCount}].queryParameters" name="apiRequests[${currentCount}].queryParameters" placeholder='e.g., {"name": "john", "age": "30"}'></textarea>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].headers">Headers (JSON 형식):</label>
+                <textarea id="apiRequests[${currentCount}].headers" name="apiRequests[${currentCount}].headers" placeholder='e.g., {"Authorization": "Bearer token"}'></textarea>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].body">Body:</label>
+                <textarea id="apiRequests[${currentCount}].body" name="apiRequests[${currentCount}].body" placeholder='Enter request body here...'></textarea>
+            </div>
+            <div>
+                <label for="apiRequests[${currentCount}].contentType">Content Type:</label>
+                <input type="text" id="apiRequests[${currentCount}].contentType" name="apiRequests[${currentCount}].contentType" placeholder='e.g., application/json'>
+            </div>
+            <hr>
+        `;
 
-        // 파라미터 목록을 가져옴
-        var apiParameters=JSON.parse(document.getElementById("apiParameters").value);
-        // console.log(apiParameters[selectedApi]);
-        var params = apiParameters[selectedApi];
+        container.appendChild(apiDiv);
+    }
 
-        // 각 파라미터에 대해 입력 필드 생성
-        if (params) {
-            params.forEach(function(param) {
-                var label = document.createElement("label");
-                label.setAttribute("for", param);
-                label.textContent = param.charAt(0).toUpperCase() + param.slice(1) + ":";
+    // API 요청 삭제 함수
+    function removeApiRequest(id) {
+        const apiDiv = document.getElementById(`apiRequest-${id}`);
+        if (apiDiv) {
+            apiDiv.remove();
 
-                var input = document.createElement("input");
-                input.setAttribute("type", "text");
-                input.setAttribute("id", param);
-                input.setAttribute("name", param);
-                // input.setAttribute("placeholder", "Enter " + param);
+            const apiRequests = document.querySelectorAll('.api-request');
+            apiRequests.forEach((apiRequestDiv, index) => {
+                apiRequestDiv.id = `apiRequest-${index}`;
+                apiRequestDiv.querySelector('h3').textContent = `API 요청 ${index + 1}`;
 
-                paramsDiv.appendChild(label);
-                paramsDiv.appendChild(input);
-                paramsDiv.appendChild(document.createElement("br"));
+                const inputs = apiRequestDiv.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    const nameAttr = input.getAttribute('name');
+                    const idAttr = input.getAttribute('id');
+
+                    // 정규 표현식을 사용하여 현재 인덱스만 대체
+                    const newName = nameAttr.replace(/\d+/, index);
+                    const newId = idAttr.replace(/\d+/, index);
+
+                    input.setAttribute('name', newName);
+                    input.setAttribute('id', newId);
+                });
+
+                const removeButton = apiRequestDiv.querySelector('.remove-api');
+                removeButton.setAttribute('onclick', `removeApiRequest(${index})`);
             });
         }
     }
 
-    // "추가" 버튼 클릭 시 선택된 API와 입력된 파라미터를 리스트에 추가하는 함수
-    function addApiToList() {
-        var selectedApi = document.getElementById("APIs").value;
-        if (!selectedApi) return;
+    // JSON 유효성 검사 함수
+    function validateJsonInput(jsonString) {
+        if (!jsonString.trim()) return true; // 빈 입력은 허용
+        try {
+            JSON.parse(jsonString);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
 
-        var paramsDiv = document.getElementById("parameters");
-        var apiListDiv = document.getElementById("apiList");
+    // 폼 제출 전 데이터 검증
+    function submitForm(event) {
+        const apiRequests = document.querySelectorAll('.api-request');
+        if (apiRequests.length === 0) {
+            alert('적어도 하나의 API 요청을 추가해야 합니다.');
+            event.preventDefault();
+            return;
+        }
 
-        // 해당 API와 입력된 파라미터들 가져오기
-        var apiParameters = JSON.parse(document.getElementById("apiParameters").value);
-        var params = apiParameters[selectedApi];
+        let isValid = true;
+        apiRequests.forEach((apiRequestDiv, index) => {
+            const name = apiRequestDiv.querySelector(`[name="apiRequests[${index}].name"]`).value.trim();
+            const url = apiRequestDiv.querySelector(`[name="apiRequests[${index}].url"]`).value.trim();
+            const method = apiRequestDiv.querySelector(`[name="apiRequests[${index}].method"]`).value.trim();
+            const pathVariables = apiRequestDiv.querySelector(`[name="apiRequests[${index}].pathVariables"]`).value;
+            const queryParameters = apiRequestDiv.querySelector(`[name="apiRequests[${index}].queryParameters"]`).value;
+            const headers = apiRequestDiv.querySelector(`[name="apiRequests[${index}].headers"]`).value;
 
-        var apiDataDiv = document.createElement("div");
-        apiDataDiv.setAttribute("class", "api-data");
+            // 필수 필드 검사
+            if (!name || !url || !method) {
+                alert(`API 요청 ${index + 1}의 필수 필드가 비어 있습니다.`);
+                isValid = false;
+                return;
+            }
 
-        var apiLabel = document.createElement("p");
-        apiLabel.textContent = "API: " + selectedApi;
-        apiDataDiv.appendChild(apiLabel);
+            // JSON 필드 유효성 검사
+            if (!validateJsonInput(pathVariables)) {
+                alert(`API 요청 ${index + 1}의 Path Variables가 유효한 JSON 형식이 아닙니다.`);
+                isValid = false;
+                return;
+            }
 
-        // API와 관련된 입력 필드를 array로 만들어서 전송
-        var paramValues = {};
-        params.forEach(function(param) {
-            var paramInput = document.getElementById(param);
-            if (paramInput) {
-                var paramData = document.createElement("p");
-                paramData.textContent = param + ": " + paramInput.value;
-                apiDataDiv.appendChild(paramData);
+            if (!validateJsonInput(queryParameters)) {
+                alert(`API 요청 ${index + 1}의 Query Parameters가 유효한 JSON 형식이 아닙니다.`);
+                isValid = false;
+                return;
+            }
 
-                // paramValues에 해당 파라미터 값을 담음
-                paramValues[param] = paramInput.value;
+            if (!validateJsonInput(headers)) {
+                alert(`API 요청 ${index + 1}의 Headers가 유효한 JSON 형식이 아닙니다.`);
+                isValid = false;
+                return;
             }
         });
 
-        // API와 파라미터들을 리스트에 담기
-        var hiddenInput = document.createElement("input");
-        hiddenInput.setAttribute("type", "hidden");
-        hiddenInput.setAttribute("name", "apiList");  // apiList라는 이름으로 전송
-        hiddenInput.setAttribute("value", JSON.stringify({api: selectedApi, params: paramValues}));
-
-        apiListDiv.appendChild(hiddenInput);
-
-        // 리스트에 추가된 항목 표시
-        apiListDiv.appendChild(apiDataDiv);
-    }
-
-    function submitForm() {
-        var form = document.getElementById("loadTestForm");
-
-        var apiListInputs = document.getElementsByName("apiList");
-
-        if (apiListInputs.length === 1) {
-            var apiListDiv = document.getElementById("apiList");
-            var hiddenInput = document.createElement("input");
-            hiddenInput.setAttribute("type", "hidden");
-            hiddenInput.setAttribute("name", "apiList");
-            hiddenInput.setAttribute("value", JSON.stringify({api: "null"}));
-
-            apiListDiv.appendChild(hiddenInput);
+        if (!isValid) {
+            event.preventDefault();
         }
-
-        form.submit();  // 폼을 실제로 제출
     }
+
+    // 폼 제출 이벤트 리스너 추가
+    document.getElementById('loadTestForm').addEventListener('submit', submitForm);
+
+    // 페이지가 로드된 후 기본 API 요청 추가 (제거)
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     addApiRequest(); // 기본 API 요청 추가
+    // });
 </script>
 </body>
-<style>
-    /* userCount와 requestCount 필드 크기 줄이기 */
-    #userCount, #requestCount {
-        width: 50px;  /* 가로 크기 */
-        padding: 5px;  /* 안쪽 여백 */
-        font-size: 14px; /* 글씨 크기 */
-    }
-</style>
 </html>
