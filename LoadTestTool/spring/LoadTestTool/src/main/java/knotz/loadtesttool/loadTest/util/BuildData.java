@@ -74,7 +74,7 @@ public class BuildData {
 
         // Content-Type 설정
         if (apiRequest.getContentType() != null && !apiRequest.getContentType().isEmpty()) {
-            headers.setContentType(MediaType.parseMediaType(apiRequest.getContentType()));
+            headers.setContentType(apiRequest.contentTypeToMediaType());
         }
 
         // 인증 쿠키 추가

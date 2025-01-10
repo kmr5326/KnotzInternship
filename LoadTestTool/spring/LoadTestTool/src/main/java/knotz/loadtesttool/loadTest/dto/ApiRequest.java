@@ -3,6 +3,7 @@ package knotz.loadtesttool.loadTest.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.MediaType;
 
 import java.util.Map;
 
@@ -26,4 +27,9 @@ public class ApiRequest {
     private String body; // 요청 본문 (JSON, 폼 데이터 등)
 
     private String contentType; // Content-Type (application/json, application/x-www-form-urlencoded 등)
+
+    public MediaType contentTypeToMediaType(){
+        if(contentType.equals("application/json"))return MediaType.APPLICATION_JSON;
+        else return MediaType.APPLICATION_JSON;
+    }
 }
